@@ -2,6 +2,7 @@ package com.example.mysearch;
 
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -27,12 +29,15 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseReference mUserDatabase;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        FirebaseApp.initializeApp(this) ;
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
-        mUserDatabase = FirebaseDatabase.getInstance().getReference("Translators");
+         mUserDatabase = FirebaseDatabase.getInstance().getReference(KeyString.TranslatorC) ;
 
 
         mSearchField = (EditText) findViewById(R.id.search_field);
@@ -52,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
+        firebaseUserSearch("");
     }
 
     private void firebaseUserSearch(String searchText) {
@@ -72,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             protected void populateViewHolder(UsersViewHolder viewHolder, Translator model, int position) {
 
 
-                viewHolder.setDetails(getApplicationContext(), model.getName(), model.getBio(), model.getImage());
+                viewHolder.setDetails(getApplicationContext(), model);
 
             }
         };
@@ -95,17 +100,26 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        public void setDetails(Context ctx, String userName, String userStatus, String userImage){
+        public void setDetails(final Context ctx, final Translator item){
 
             TextView user_name = (TextView) mView.findViewById(R.id.name_text);
             TextView user_status = (TextView) mView.findViewById(R.id.status_text);
             ImageView user_image = (ImageView) mView.findViewById(R.id.profile_image);
+            mView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
+                    Intent i =new Intent(ctx,Translator.class);
+                    // send the data in intent
+                    i.putExtra("data", item);
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    ctx.startActivity(i);
+                }
+            });
 
-            user_name.setText(userName);
-            user_status.setText(userStatus);
-
-            Glide.with(ctx).load(userImage).into(user_image);
+            user_name.setText(item.getName());
+            user_status.setText(item.getBio());
+            Glide.with(ctx).load(item).into(user_image);
 
 
         }

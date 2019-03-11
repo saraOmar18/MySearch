@@ -1,6 +1,8 @@
 package com.example.mysearch;
 
-public class Translator {
+import java.io.Serializable;
+
+public class Translator implements Serializable {
 
 
 
